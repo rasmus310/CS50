@@ -1,2 +1,2 @@
 # CS50
-Here is all of my CS50 solutions
+**Here is all of my CS50 solutions**
