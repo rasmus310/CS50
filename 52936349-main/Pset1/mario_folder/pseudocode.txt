@@ -1,0 +1,4 @@
+Create a pyramid using #
+
+prompt the height with a positive integer between 1 and 8
+

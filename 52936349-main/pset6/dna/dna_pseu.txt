@@ -1,0 +1,32 @@
+1. Check if the correct number of command-line arguments (2) is provided.
+2. If not, print an error message and exit.
+
+3. Read the CSV file (specified in the first command-line argument) into memory.
+   - Extract the STR sequence names from the CSV's first row.
+   - Store the individuals' data in a list.
+
+4. Read the DNA sequence file (specified in the second command-line argument) into memory.
+
+5. Create a dictionary to store the counts of each STR in the DNA sequence.
+
+6. For each STR name from the CSV file:
+   - Initialize a variable to track the longest consecutive repeat count (max_count).
+   - Initialize an index variable (i) to traverse the DNA sequence.
+   - While i is within the DNA sequence:
+     - Initialize a count variable to 0.
+     - While the substring of the DNA sequence at index i matches the STR name:
+       - Increment count and move i to the end of the matching substring.
+     - Update max_count with the maximum of count and max_count.
+   - Store the max_count in the dictionary for the current STR.
+
+7. Compare the STR counts to the individuals in the CSV file.
+   - For each individual in the list of individuals:
+     - Initialize a boolean variable (match) to True.
+     - For each STR name:
+       - If the individual's count does not match the DNA sequence count for the current STR:
+         - Set match to False and break out of the loop.
+     - If match is still True, print the name of the matching individual and exit.
+
+8. If no match is found after comparing all individuals, print "No match."
+
+9. End the program.
