@@ -1,64 +1,89 @@
 import sys
 import csv
 
-# Exit if there are not exactly 3 command-line arguments.
-if len(sys.argv) != 3:
-    print("Missing command-line arguments")
-    exit(1)
 
-# Read the CSV file (specified in the first command-line argument) into memory.
-with open(sys.argv[1], 'r') as dna_csv:
-    csv_reader = csv.reader(dna_csv)
-    str_sequences_name = next(csv_reader)  # Extract the STR sequence names from the first row
-    individual_data = list(csv_reader)  # Store the individuals' data in a list
-    #print(individual_data)
-# Read the DNA sequence file (specified in the second command-line argument) into memory.
-with open(sys.argv[2], 'r') as sequence_file:
-    sequence = sequence_file.read()
+def main():
 
-# Create a dictionary to store the counts of each STR in the DNA sequence.
-STR = {} # Create a dictionary to store the counts of each STR in the DNA sequence.
+    # Check for command-line usage
+    if len(sys.argv) != 3:
+        exit("Error: python dna.py data.csv sequence.txt")
 
-# Loop through the STR sequences.
-for str_sequence in str_sequences_name: # Loop through the STR sequences.
-    longest_STR = 0 # Initialize the longest STR count
-    i = 0 # Initialize the index
-    while i < len(sequence): # While there are still characters to check in the sequence
-        if sequence[i:i + len(str_sequence)] == str_sequence: # Check for consecutive matches
-            STR_count = 1 # Initialize the STR count
-            # While there are consecutive matches, increment the STR count and move the index
-            while sequence[i:i + len(str_sequence)] == sequence[i + len(str_sequence):i + 2*len(str_sequence)]: # Check for consecutive matches
-                STR_count += 1
-                i += len(str_sequence)
-            if STR_count > longest_STR: # Update the longest STR count
-                longest_STR = STR_count
-        i += 1 # Move to the next character
-        #print(f"STR count: {i}, Longest STR: {longest_STR}")
-    STR[str_sequence] = longest_STR # Store the longest STR count
+    # Read database file into a variable
+    database = [] # Initialize database list to store each row of database
+    with open(sys.argv[1], 'r') as databaseFile:
+        reader = csv.DictReader(databaseFile)
+        for row in reader:
+            database.append(row) # Add each row of database to database list
+            #print(row) # Print each row of database
 
-# Use a flag to track whether a match has been found.
-match_found = False
+    # Read DNA sequence file into a variable
+    with open(sys.argv[2], 'r') as sequenceFile:
+        dna_sequence = sequenceFile.read()
+        #print(dna_sequence) # Print DNA sequence
 
-# Compare the STR counts to the individuals in the CSV file.
-for person in individual_data: # Loop through the individuals in the CSV file.
-    match = True # Initialize the match variable to True
-    for i in range(1, len(person)): # Loop through the STR counts for each individual.
-        if int(person[i]) != STR[str_sequences_name[i]]: # Compare the STR counts to the individuals in the CSV file.
-            match = False # Set match to False if the counts don't match
-            break # Break out of the loop if the counts don't match
-    if match:  # Check if all STR counts match.
-        print(person[0])  # Print the name of the matching individual.
-        match_found = True
-        break  # Exit the loop as a match has been found
+    # Find longest match of each STR in DNA sequence
+    subsequences = list(database[0].keys())[1:]
+    #print(subsequences) # prints the subsequences
 
-# If no match is found, print a message indicating no match.
-if not match_found:
-    print("No match.")
+    result = {}
+    for subsequence in subsequences:
+        result[subsequence] = longest_match(dna_sequence, subsequence) # Store longest match of each STR in result dictionary
+        #print(result[subsequence])
+
+    # Check database for matching profiles
+    for person in database:
+        match = 0
+        for subsequence in subsequences:
+            if int(person[subsequence]) == result[subsequence]:
+                match += 1
+                #print(match)
+                #print(len(subsequences))
+
+        # If all subsequences match, print persons name and exit
+        if match == len(subsequences):
+            print(person["name"])
+            return
+
+    # If no match found, print this
+    print("No match")
+    return
+
+# Function to find longest match of subsequence in sequence
+def longest_match(sequence, subsequence):
+
+    # Initialize variables
+    longest_run = 0
+    subsequence_length = len(subsequence)
+    sequence_length = len(sequence)
+
+    # Check each character in sequence for most consecutive runs of subsequence
+    for i in range(sequence_length):
+
+        # Initialize count of consecutive runs
+        count = 0
+
+        # Check for a subsequence match in a "substring" (a subset of characters) within sequence
+        # If a match, move substring to next potential match in sequence
+        # Continue moving substring and checking for matches until out of consecutive matches
+        while True:
+
+            # Adjust substring start and end
+            start = i + count * subsequence_length #
+            end = start + subsequence_length #
+
+            # If there is a match in the substring
+            if sequence[start:end] == subsequence:
+                count += 1
+
+            # If there is no match in the substring
+            else:
+                break
+
+        # Update most consecutive matches found
+        longest_run = max(longest_run, count)
+
+    # After checking for runs at each character in seqeuence, return longest run found
+    return longest_run
 
 
-
-
-
-
-
-
+main() # ensure main function is called when program is run
